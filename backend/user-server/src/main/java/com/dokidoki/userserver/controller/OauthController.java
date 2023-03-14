@@ -17,9 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -67,16 +67,20 @@ public class OauthController {
         GoogleUserInfo info = oauthService.getUserInfoGoogle(code);
 
         // 회원이 존재하면 반환, 아니면 가입 후 반환
-        UserEntity user = userService.getUserFromSubAndProvider(info.getSub(), ProviderType.GOOGLE).orElse(
-                userService.saveUser(
+        Optional<UserEntity> optionalUserEntity = userService.getUserFromSubAndProvider(info.getSub(), ProviderType.GOOGLE);
+        UserEntity user;
+        if(optionalUserEntity.isEmpty())
+        {
+            user = userService.saveUser(
                         UserEntity.builder()
                                 .sub(info.getSub())
                                 .email(info.getEmail())
                                 .picture(info.getPicture())
                                 .name(info.getName())
                                 .providerType(ProviderType.GOOGLE)
-                                .build())
-        );
+                                .build());
+        }else user = optionalUserEntity.get();
+
         String accessToken = jwtProvider.getAccessToken(user.getId());
         String refreshToken = jwtProvider.getRefreshToken(user);
 
@@ -88,16 +92,20 @@ public class OauthController {
         KakaoUserInfo info = oauthService.getUserInfoKakao(code);
 
         // 회원이 존재하면 반환, 아니면 가입 후 반환
-        UserEntity user = userService.getUserFromSubAndProvider(info.getSub(), ProviderType.KAKAO).orElse(
-                userService.saveUser(
+        Optional<UserEntity> optionalUserEntity  = userService.getUserFromSubAndProvider(info.getSub(), ProviderType.KAKAO);
+        UserEntity user;
+        if(optionalUserEntity.isEmpty())
+        {
+                user = userService.saveUser(
                         UserEntity.builder()
                                 .sub(info.getSub())
                                 .email(info.getEmail())
                                 .picture(info.getPicture())
                                 .name(info.getNickname())
                                 .providerType(ProviderType.KAKAO)
-                                .build())
-        );
+                                .build());
+        }else user = optionalUserEntity.get();
+
         String accessToken = jwtProvider.getAccessToken(user.getId());
         String refreshToken = jwtProvider.getRefreshToken(user);
 

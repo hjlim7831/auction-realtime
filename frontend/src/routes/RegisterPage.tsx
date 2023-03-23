@@ -1,11 +1,11 @@
-import { Form } from "react-router-dom";
-import styled from "styled-components";
-import Grid from "@mui/material/Grid";
-import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
-import { useState, useRef } from "react";
-import ProductInfoInput from "../components/resigter/ProductInfoInput";
-import ActionInfoInput from "../components/resigter/ActionInfoInput";
+import { Form } from 'react-router-dom';
+import styled from 'styled-components';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import { useState, useRef } from 'react';
+import ProductInfoInput from '../components/resigter/ProductInfoInput';
+import ActionInfoInput from '../components/resigter/ActionInfoInput';
 
 const RegisterPage = () => {
   const StyledDiv = styled.div`
@@ -19,13 +19,7 @@ const RegisterPage = () => {
       <StyledDiv>
         <Form>
           {/* 전체를 감싸는 Grid */}
-          <Grid
-            container
-            alignItems={"center"}
-            direction="column"
-            gap={4}
-            py={5}
-          >
+          <Grid container alignItems={'center'} direction="column" gap={4} py={5}>
             {/*상단 입력 박스 */}
             <Grid item xs={6}>
               <ProductInfoInput />
@@ -39,11 +33,7 @@ const RegisterPage = () => {
             {/* 하단 버튼 */}
             <Grid item xs={6}>
               <Stack spacing={2} direction="row">
-                <Button
-                  variant="contained"
-                  color="error"
-                  sx={{ width: 340, fontSize: 25 }}
-                >
+                <Button variant="contained" color="error" sx={{ width: 340, fontSize: 25 }}>
                   취소
                 </Button>
                 <Button variant="contained" sx={{ width: 340, fontSize: 25 }}>

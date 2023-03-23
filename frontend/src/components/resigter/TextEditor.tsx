@@ -1,10 +1,9 @@
-import { Editor } from "@toast-ui/react-editor";
-import "@toast-ui/editor/dist/toastui-editor.css";
-import { useRef } from "react";
+import { Editor } from '@toast-ui/react-editor';
+import '@toast-ui/editor/dist/toastui-editor.css';
+import { useRef } from 'react';
 
 const TextEditor = () => {
-
-    const editorRef:any = useRef(null)
+  const editorRef: any = useRef(null);
 
   return (
     <Editor
@@ -15,7 +14,7 @@ const TextEditor = () => {
       useCommandShortcut={false}
       usageStatistics={false}
       onChange={() => {
-        console.log(editorRef.current.getInstance().getMarkdown())
+        console.log(editorRef.current.getInstance().getMarkdown());
       }}
     />
   );

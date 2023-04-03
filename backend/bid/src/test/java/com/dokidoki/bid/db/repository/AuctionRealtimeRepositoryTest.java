@@ -24,8 +24,8 @@ class AuctionRealtimeRepositoryTest {
     @Autowired RedissonClient redisson;
 
     static long auctionId = 1_000;
-    static int highestPrice = 7_000_000;
-    static int priceSize = 5_000;
+    static Long highestPrice = 7_000_000L;
+    static Long priceSize = 5_000L;
 
 
     @BeforeEach
@@ -87,7 +87,7 @@ class AuctionRealtimeRepositoryTest {
 
             // given
             auctionRealtimeRepository.save(auctionRealtime);
-            int cPriceSize = 10_000;
+            Long cPriceSize = 10_000L;
 
             // when
             AuctionRealtime updateAuctionRealtime = auctionRealtimeRepository.findById(auctionId).get();

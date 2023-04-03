@@ -59,7 +59,7 @@ public class BiddingService {
      * @param auctionId
      * @return
      */
-    public AuctionInitialInfoResp getInitialInfo(long auctionId) {
+    public AuctionInitialInfoResp getInitialInfo(Long auctionId) {
 
         // 1. 초기 리더보드 정보 가져오기
         List<LeaderBoardMemberResp> initialLeaderBoard = getInitialLeaderBoard(auctionId);
@@ -91,7 +91,7 @@ public class BiddingService {
      * @param memberId 접근하는 사용자의 ID
      */
     @RealTimeLock
-    public void bid(long auctionId, AuctionBidReq req, long memberId) throws InterruptedException {
+    public void bid(Long auctionId, AuctionBidReq req, Long memberId) throws InterruptedException {
         log.info("req: {}", req);
 
         // 1. 경매 정보가 없는 경우 - 에러 발생시키기 (종료된 경매)
@@ -114,7 +114,7 @@ public class BiddingService {
             throw new BusinessException("현재 가격이 갱신되었습니다. 다시 시도해주세요", ErrorCode.DIFFERENT_HIGHEST_PRICE);
         }
 
-        long beforeWinnerId = -1;
+        Long beforeWinnerId = -1L;
         
         // 3. 입찰 강탈 여부를 확인하기 위해, 이전 최고값 입찰자 구해놓기
         Optional<LeaderBoardMemberInfo> winnerO = auctionRealtimeLeaderBoardRepository.getWinner(auctionId);
@@ -141,10 +141,10 @@ public class BiddingService {
      * @return newHighestPrice
      */
     @RTransactional
-    public LeaderBoardMemberResp updateLeaderBoardAndHighestPrice(AuctionRealtime auctionRealtime, AuctionBidReq req, long memberId, long auctionId) {
+    public LeaderBoardMemberResp updateLeaderBoardAndHighestPrice(AuctionRealtime auctionRealtime, AuctionBidReq req, Long memberId, Long auctionId) {
 
         // 3-1. 실시간 최고가 갱신
-        int newHighestPrice = auctionRealtime.updateHighestPrice();
+        Long newHighestPrice = auctionRealtime.updateHighestPrice();
 
         auctionRealtimeRepository.save(auctionRealtime);
         
@@ -170,13 +170,13 @@ public class BiddingService {
      * @param auctionId 경매 ID
      * @return client 에게 보내줄 리더보드 정보
      */
-    public List<LeaderBoardMemberResp> getInitialLeaderBoard(long auctionId) {
+    public List<LeaderBoardMemberResp> getInitialLeaderBoard(Long auctionId) {
         List<LeaderBoardMemberResp> list = new ArrayList<>();
 
         Collection<ScoredEntry<LeaderBoardMemberInfo>> leaderBoardMemberInfos = auctionRealtimeLeaderBoardRepository.getAll(auctionId);
 
         for (ScoredEntry<LeaderBoardMemberInfo> info: leaderBoardMemberInfos) {
-            int bidPrice = info.getScore().intValue();
+            Long bidPrice = info.getScore().longValue();
             LeaderBoardMemberResp resp = LeaderBoardMemberResp.of(info.getValue(), bidPrice);
             list.add(resp);
         }

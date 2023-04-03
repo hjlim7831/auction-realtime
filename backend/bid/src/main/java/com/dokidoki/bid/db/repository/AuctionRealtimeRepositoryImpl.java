@@ -38,7 +38,7 @@ public class AuctionRealtimeRepositoryImpl implements AuctionRealtimeRepository 
     }
 
     @Override
-    public Optional<AuctionRealtime> findById(long auctionId) {
+    public Optional<AuctionRealtime> findById(Long auctionId) {
         AuctionRealtime auctionRealtime = map.get(auctionId);
         if (auctionRealtime == null) {
             return Optional.empty();
@@ -55,7 +55,7 @@ public class AuctionRealtimeRepositoryImpl implements AuctionRealtimeRepository 
 
     @Override
     @RTransactional
-    public void save(AuctionRealtime auctionRealtime, long ttl, TimeUnit timeUnit) {
+    public void save(AuctionRealtime auctionRealtime, Long ttl, TimeUnit timeUnit) {
         map.put(auctionRealtime.getAuctionId(), auctionRealtime, ttl, timeUnit);
     }
 

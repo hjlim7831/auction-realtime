@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface AuctionIngRepository extends JpaRepository<AuctionIngEntity, Long> {
 
-    <T> Optional<T> findBySellerIdAndId(long sellerId, long auctionId, Class<T> type);
+    <T> Optional<T> findBySellerIdAndId(Long sellerId, Long auctionId, Class<T> type);
 
 }

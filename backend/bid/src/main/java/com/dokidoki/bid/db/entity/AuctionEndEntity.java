@@ -34,13 +34,14 @@ public class AuctionEndEntity {
 
     private String title;               // 제목
 
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String description;         // 제품설명
 
     @Column(name = "offer_price")
-    private Integer offerPrice;         // 시작가
+    private Long offerPrice;         // 시작가
 
     @Column(name = "final_price")
-    private Integer finalPrice;         // 낙찰금액
+    private Long finalPrice;         // 낙찰금액
 
     public static AuctionEndEntity createAuctionEnd(
             Long id,
@@ -50,8 +51,8 @@ public class AuctionEndEntity {
             LocalDateTime startTime,
             LocalDateTime endTime,
             String title,
-            Integer offerPrice,
-            Integer finalPrice
+            Long offerPrice,
+            Long finalPrice
     ) {
         AuctionEndEntity auctionEndEntity = new AuctionEndEntity();
         auctionEndEntity.id = id;

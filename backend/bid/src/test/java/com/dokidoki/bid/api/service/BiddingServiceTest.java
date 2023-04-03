@@ -47,8 +47,8 @@ class BiddingServiceTest {
     static long sellerId;
     static long[] memberIds = {0, 0};
     final static long auctionId = 70_000;
-    final static int highestPrice = 7_000_000;
-    final static int priceSize = 10_000;
+    final static long highestPrice = 7_000_000L;
+    final static long priceSize = 10_000L;
     final static String[] names = {"사용자0", "사용자1"};
     final static String[] emails = {"user0@gmail.com", "user1@gmail.com"};
 

@@ -27,7 +27,7 @@ public class ProductEntity {
     private String imgUrl;      // 이미지 url
 
     @Column(name = "sale_cnt")
-    private Integer saleCnt;        // 판매 빈도
+    private Long saleCnt;        // 판매 빈도
 
 }
 

@@ -9,10 +9,7 @@ import javax.persistence.*;
 
 import java.time.LocalDateTime;
 
-@ToString
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "auction_ing")
 @Entity
@@ -54,6 +51,23 @@ public class AuctionIngEntity {
 
     @Column(name = "highest_price")
     private Long highestPrice;           // 현재 최고가
+
+    @Builder
+    public AuctionIngEntity(Long id, MemberEntity seller, ProductEntity productEntity, String title, String description,
+                            Long offerPrice, Long priceSize, LocalDateTime startTime, LocalDateTime endAt,
+                            String meetingPlace, Long highestPrice) {
+        this.id = id;
+        this.seller = seller;
+        this.productEntity = productEntity;
+        this.title = title;
+        this.description = description;
+        this.offerPrice = offerPrice;
+        this.priceSize = priceSize;
+        this.startTime = startTime;
+        this.endAt = endAt;
+        this.meetingPlace = meetingPlace;
+        this.highestPrice = highestPrice;
+    }
 
     public void update(AuctionUpdateReq auctionUpdateReq) {
         this.title = auctionUpdateReq.getTitle();

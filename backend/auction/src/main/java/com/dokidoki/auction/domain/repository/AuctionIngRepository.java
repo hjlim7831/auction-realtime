@@ -1,5 +1,6 @@
 package com.dokidoki.auction.domain.repository;
 
+import com.dokidoki.auction.domain.custom.AuctionIngCustom;
 import com.dokidoki.auction.domain.entity.AuctionIngEntity;
 import com.dokidoki.auction.dto.db.AuctionIngMapping;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface AuctionIngRepository extends JpaRepository<AuctionIngEntity, Long> {
+public interface AuctionIngRepository extends JpaRepository<AuctionIngEntity, Long>, AuctionIngCustom {
     // 진행중인 경매의 상세정보 조회
     AuctionIngEntity findAuctionIngEntityByIdOrderById(Long auctionId);
 

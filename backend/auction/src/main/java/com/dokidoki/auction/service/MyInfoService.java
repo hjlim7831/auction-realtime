@@ -5,6 +5,7 @@ import com.dokidoki.auction.domain.entity.AuctionEndEntity;
 import com.dokidoki.auction.domain.entity.AuctionIngEntity;
 import com.dokidoki.auction.domain.repository.AuctionEndRepository;
 import com.dokidoki.auction.domain.repository.AuctionIngRepository;
+import com.dokidoki.auction.dto.custom.SimpleAuctionIngInfo;
 import com.dokidoki.auction.dto.db.ImageInterface;
 import com.dokidoki.auction.dto.response.*;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +34,16 @@ public class MyInfoService {
     판매중인 경매 목록 조회
      */
     @Transactional(readOnly = true)
-    public PaginationResp readAllMySellingAuction(Long memberId, Pageable pageable) {
+    public Page<SimpleAuctionIngInfo> readAllMySellingAuction(Long memberId, Pageable pageable) {
         // 데이터 조회
-        Page<AuctionIngEntity> auctionIngEntities = auctionIngRepository
-                .findAllMySellingAuction(memberId, pageable);
+        Page<SimpleAuctionIngInfo> auctionIngEntities = auctionIngRepository
+                .searchAuctionIng(
+                        null,
+                        null,
+                        null, memberId,
+                        null,
+                        pageable
+                );
 
         // Response DTO 변환
         return auctionListService.convertToDTOWithImages(memberId, auctionIngEntities);
@@ -46,20 +53,27 @@ public class MyInfoService {
     입찰중인 경매 목록 조회
      */
     @Transactional(readOnly = true)
-    public PaginationResp readAllMyBiddingAuction(String accessToken, Long memberId, Pageable pageable) {
+    public Page<SimpleAuctionIngInfo> readAllMyBiddingAuction(String accessToken, Long memberId, Pageable pageable) {
         // Bid Server로부터 입찰중인 경매 ID 리스트 가져오기
         BiddingResp biddingResp = httpUtil.getAuctionIdList(accessToken);
 
         // 데이터 조회
-        Page<AuctionIngEntity> auctionIngEntities = auctionIngRepository
-                .findAllByIdInOrderByIdDesc(biddingResp.getAuctionIdList(), pageable);
+        Page<SimpleAuctionIngInfo> auctionIngEntities = auctionIngRepository
+                .searchAuctionIng(
+                        null,
+                        null,
+                        null,
+                        null,
+                        biddingResp.getAuctionIdList(),
+                        pageable
+                );
 
         // Response DTO 변환
         return auctionListService.convertToDTOWithImages(memberId, auctionIngEntities);
     }
 
     /*
-    입찰중인 경매 목록 조회
+    관심있는 경매 목록 조회
      */
     @Transactional(readOnly = true)
     public PaginationResp readAllMyInterestingAuction(Long memberId, Pageable pageable) {

@@ -6,6 +6,7 @@ import com.dokidoki.auction.domain.entity.MemberEntity;
 import com.dokidoki.auction.domain.repository.AuctionEndRepository;
 import com.dokidoki.auction.domain.repository.AuctionIngRepository;
 import com.dokidoki.auction.domain.repository.InterestRepository;
+import com.dokidoki.auction.dto.custom.SimpleAuctionIngInfo;
 import com.dokidoki.auction.dto.db.AuctionIngMapping;
 import com.dokidoki.auction.dto.db.ImageInterface;
 import com.dokidoki.auction.dto.db.InterestMapping;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -93,10 +95,19 @@ public class AuctionListService {
     진행중인 전체 경매 목록 조회
      */
     @Transactional(readOnly = true)
-    public PaginationResp readAuctionIngList(Long memberId, Integer page, Integer size) {
+    public Page<SimpleAuctionIngInfo> readAuctionIngList(Long memberId, Integer page, Integer size) {
         // 데이터 조회
-        Page<AuctionIngEntity> auctionIngEntities = auctionIngRepository
-                .findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
+        Page<SimpleAuctionIngInfo> auctionIngEntities = auctionIngRepository
+//                .findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
+                .searchAuctionIng(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))
+                );
+
         return convertToDTOWithImages(memberId, auctionIngEntities);
     }
 
@@ -104,10 +115,13 @@ public class AuctionListService {
     진행중인 마감임박 경매 목록 조회
      */
     @Transactional(readOnly = true)
-    public PaginationResp readSimpleAuctionDeadline(Long memberId, Pageable pageable) {
+    public Page<SimpleAuctionIngInfo> readSimpleAuctionDeadline(Long memberId, Pageable pageable) {
+        // 6시간 후의 시간
+        LocalDateTime afterNHours = LocalDateTime.now().plusHours(6);
+
         // 데이터 조회
-        Page<AuctionIngEntity> auctionIngEntities = auctionIngRepository
-                .findAllSimpleDeadlineList(pageable);
+        Page<SimpleAuctionIngInfo> auctionIngEntities = auctionIngRepository
+                .searchAuctionIng(null, null, afterNHours, null, null, pageable);
         return convertToDTOWithImages(memberId, auctionIngEntities);
     }
 
@@ -115,19 +129,14 @@ public class AuctionListService {
     진행중인 경매 목록 검색
      */
     @Transactional(readOnly = true)
-    public PaginationResp searchAuctionIngList(
+    public Page<SimpleAuctionIngInfo> searchAuctionIngList(
             Long memberId, String keyword, Long categoryId, Pageable pageable) {
         // 불필요 문자 제거
         keyword = keyword.strip();
 
         // 데이터 조회, 카테고리 설정 여부에 따라 (키워드, 카테고리) 검색과 (키워드) 검색으로 분기
-        Page<AuctionIngEntity> auctionIngEntities = null;
-        if (categoryId == 0)
-            auctionIngEntities = auctionIngRepository
-                    .findAllSimpleIngListByKeyword(keyword, pageable);
-        else
-            auctionIngEntities = auctionIngRepository
-                    .findAllSimpleIngListByKeywordANDCategoryId(keyword, categoryId, pageable);
+        Page<SimpleAuctionIngInfo> auctionIngEntities = auctionIngRepository
+                .searchAuctionIng(keyword, categoryId, null, pageable);
 
         return convertToDTOWithImages(memberId, auctionIngEntities);
     }
@@ -135,9 +144,9 @@ public class AuctionListService {
     /*
     DB에서 조회한 진행중인 경매 목록 데이터에 제품 이미지를 추가하며 DTO로 변환
      */
-    public PaginationResp convertToDTOWithImages(
+    public Page<SimpleAuctionIngInfo> convertToDTOWithImages(
             Long memberId,
-            Page<AuctionIngEntity> auctionIngEntities) {
+            Page<SimpleAuctionIngInfo> simpleAuctionIngInfos) {
         // 관심있는 경매 ID 가져오기
         List<InterestMapping> interestMappings = interestRepository.findAllByMemberEntity_Id(memberId);
         Set<Long> interestsOfUser = new HashSet<>();
@@ -162,42 +171,33 @@ public class AuctionListService {
 
         // 각 경매의 대표 이미지 가져오기
         List<Long> auctionIdList = new ArrayList<>();
-        for (AuctionIngEntity auctionIngEntity : auctionIngEntities)
-            auctionIdList.add(auctionIngEntity.getId());
+        for (SimpleAuctionIngInfo simpleAuctionIngInfo : simpleAuctionIngInfos)
+            auctionIdList.add(simpleAuctionIngInfo.getAuction_id());
         List<ImageInterface> imageInterfaces = imageService
                 .readAuctionThumbnailImage(auctionIdList);
 
         // 데이터 조합
-        List<SimpleAuctionIngInfo> simpleAuctionIngInfos = new ArrayList<>();
         int imageIdx = 0;
-        for (int i = 0; i < auctionIngEntities.getContent().size(); i++) {
-            AuctionIngEntity auctionIngEntity = auctionIngEntities.getContent().get(i);
+        for (int i = 0; i < simpleAuctionIngInfos.getContent().size(); i++) {
+            SimpleAuctionIngInfo simpleAuctionIngInfo = simpleAuctionIngInfos.getContent().get(i);
 
             // 경매번호 및 이미지 가져오기, readSimpleAuctionEnd와 동일
             String imageUrl = null;
             if (imageIdx < imageInterfaces.size()) {
                 Long imageAuctionId = imageInterfaces.get(imageIdx).getAuction_id();
-                if (imageAuctionId.equals(auctionIngEntity.getId())) {
+                if (imageAuctionId.equals(simpleAuctionIngInfo.getAuction_id())) {
                     imageUrl = imageInterfaces.get(imageIdx).getImage_url();
                     imageIdx++;
                 }
             }
 
-            // Response DTO 담기
-            simpleAuctionIngInfos.add(
-                    new SimpleAuctionIngInfo(
-                            auctionIngEntity,
-                            imageUrl,
-                            interestsOfUser,
-                            salesOfUser
-                    )
-            );
+            // 기타 정보 설정
+            simpleAuctionIngInfo.setIsMyInterest(interestsOfUser);
+            simpleAuctionIngInfo.setIsMyAuction(salesOfUser);
+            simpleAuctionIngInfo.setImage(imageUrl);
         }
 
         // Response DTO 생성 및 반환
-        return PaginationResp.of(
-                simpleAuctionIngInfos,
-                auctionIngEntities.isLast()
-        );
+        return simpleAuctionIngInfos;
     }
 }

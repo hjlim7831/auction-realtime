@@ -2,10 +2,12 @@ package com.dokidoki.auction.controller;
 
 import com.dokidoki.auction.common.BaseResponseBody;
 import com.dokidoki.auction.common.JWTUtil;
+import com.dokidoki.auction.dto.custom.SimpleAuctionIngInfo;
 import com.dokidoki.auction.dto.response.PaginationResp;
 import com.dokidoki.auction.service.AuctionListService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +52,7 @@ public class AuctionListController {
         Long memberId = jwtUtil.getUserId(request);
 
         // 데이터 조회
-        PaginationResp paginationResp;
+        Page<SimpleAuctionIngInfo> paginationResp;
         String msg = "";
 
         // 검색어, 카테고리 모두 비어있다면 전체 검색
@@ -80,7 +82,7 @@ public class AuctionListController {
             Long memberId = jwtUtil.getUserId(request);
 
             // 데이터 조회
-            PaginationResp paginationResp = auctionListService
+            Page<SimpleAuctionIngInfo> paginationResp = auctionListService
                     .readSimpleAuctionDeadline(memberId, PageRequest.of(page, size));
 
             return ResponseEntity
